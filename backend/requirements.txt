@@ -1,0 +1,12 @@
+orjson
+fastapi
+uvicorn[standard]
+gunicorn
+
+asyncpg
+alembic
+sqlmodel
+
+# pandas
+# python-multipart
+# email_validator
