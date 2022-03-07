@@ -20,10 +20,3 @@ docker compose up -d --build
 ```bash
 docker compose -f "docker-compose.prod.yml" up -d --build
 ```
-# Boilerplate TODO
-#### yarn 3 react-app
-#### Eject react-app
-#### Decide about ts usage
-#### Deal with nginx config
-#### Resolve TODOs
-#### Add CI/CD
