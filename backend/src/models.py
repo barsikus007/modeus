@@ -12,7 +12,7 @@ __all__ = [
 
 
 # TODO: Find a way to define these enums for fields
-# TODO: add sqlaclhemy enums
+# TODO: add sqlaclhemy enums https://github.com/tiangolo/sqlmodel/pull/24
 class StudentStatus(str, Enum):
     ACTIVE = 'active'
     ON_LEAVE = 'on_leave'

@@ -16,6 +16,7 @@ services:
     volumes:
       - ./backend:/app
     environment:
+      TZ: Asia/Yekaterinburg
       DEBUG: true
       DATABASE_URL: postgresql+asyncpg://postgres:TODO_CHANGE_ME@postgres:5432/postgres
     depends_on:
@@ -33,7 +34,7 @@ services:
     image: postgres:14-alpine
     restart: always
     environment:
-      TZ: Europe/Moscow
+      TZ: Asia/Yekaterinburg
       POSTGRES_PASSWORD: TODO_CHANGE_ME
     volumes:
       - db-data:/var/lib/postgresql/data
