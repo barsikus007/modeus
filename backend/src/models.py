@@ -1,76 +1,80 @@
-from typing import List, Optional
-from sqlmodel import SQLModel, Field, Relationship
 from enum import Enum
+from typing import List
+
+from sqlmodel import SQLModel, Field, Relationship
+
+
+__all__ = [
+    'Student', 'CourseMajorLink', 'Attendance',
+    'Enrollment', 'Grade', 'FacultyMember', 'Course', 'Minor',
+    'Assignment', 'MakeUp', 'Class', 'Major',
+]
+
 
 # TODO: Find a way to define these enums for fields
-class StudentStatus(Enum):
+# TODO: add sqlaclhemy enums
+class StudentStatus(str, Enum):
     ACTIVE = 'active'
     ON_LEAVE = 'on_leave'
     TRANSFERED = 'transferred'
     EXPELLED = 'expelled'
 
-class CourseType(Enum):
+class CourseType(str, Enum):
     ELECTIVE = 'elective'
     MAJOR = 'major'
     CORE = 'core'
 
-class CourseGradingType(Enum):
+class CourseGradingType(str, Enum):
     PASS_FAIL = 'pass_fail'
     MEDIAN = 'median'
     AVERAGE = 'average'
     GRADE = 'grade'
 
-class CourseStatus(Enum):
+class CourseStatus(str, Enum):
     ARCHIVED = 'archived'
     ACTIVE = 'active'
     DRAFT = 'draft'
 
 
-__all__ = ['Student']
-
-
-
-
 # FIXME: Should the *_id types be optional for a surrogate table?
 
 class CourseMajorLink(SQLModel, table=True):
-    course_id: Optional[int] = Field(
+    course_id: int | None = Field(
         default=None, foreign_key="course.id", primary_key=True
     )
-    major_id: Optional[int] = Field(
+    major_id: int | None = Field(
         default=None, foreign_key="major.id", primary_key=True
     )
-    status: str
 
 
 class Attendance(SQLModel, table=True):
-    enrolled_id: Optional[int] = Field(
+    enrollment_id: int | None = Field(
         default=None, foreign_key="enrollment.id", primary_key=True
     )
-    class_id: Optional[int] = Field(
-        default=None, foreign_key="student.id", primary_key=True
+    class_id: int | None = Field(
+        default=None, foreign_key="class.id", primary_key=True
     )
     status: str
 
 
 class Enrollment(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    course_id: Optional[int] = Field(
-        default=None, foreign_key="course.id", primary_key=True
+    course_id: int | None = Field(
+        default=None, foreign_key="course.id"
     )
-    student_id: Optional[int] = Field(
-        default=None, foreign_key="student.id", primary_key=True
+    student_id: int | None = Field(
+        default=None, foreign_key="student.id"
     )
 
     classes: List["Class"] = Relationship(back_populates="enrollments", link_model=Attendance)
-    
+
 
 class Grade(SQLModel, table=True):
-    student_id: Optional[int] = Field(
-        default=None, foreign_key="enrolled.id", primary_key=True
-    )
-    assignment_id: Optional[int] = Field(
+    student_id: int | None = Field(
         default=None, foreign_key="student.id", primary_key=True
+    )
+    assignment_id: int | None = Field(
+        default=None, foreign_key="assignment.id", primary_key=True
     )
     value: float
 
@@ -78,15 +82,14 @@ class Grade(SQLModel, table=True):
 class StudentBase(SQLModel):
     name: str = Field(index=True)
     year: int
-    major: str
+
+    courses: List["Course"] = Relationship(back_populates="student", link_model=Enrollment)
+    major: "Major" = Relationship(back_populates="students")
 
 
 class Student(StudentBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
 
-    course_id: Optional[int] = Field(default=None, foreign_key="course.id")
-    courses: List["Course"] = Relationship(back_populates="student", link_model=Enrollment)
-    major: "Major" = Relationship(back_populates="students")
 
 class StudentCreate(StudentBase):
     pass
@@ -116,20 +119,20 @@ class Course(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name: str
     hours: int
-    assessment_type: str 
-    course_type: str 
+    assessment_type: str
+    course_type: CourseType
     course_weight: float
     module: str
     start_date: str
-    end_date: str 
+    end_date: str
     exam_date: str
-    status: str
+    status: CourseStatus
 
-    students: List[Student] | None = Relationship(default=None, back_populates="course", link_model=Enrollment) 
-    assignments: List["Assignment"] | None = Relationship(default=None, back_populates="course")
-    classes: List["Class"] | None  = Relationship(default=None, back_populates="course") 
-    minors: List["Minor"] | None = Relationship(default=None, back_populates="course")
-    majors: List["Major"] | None = Relationship(default=None, back_populates="courses", link_model=CourseMajorLink)
+    students: List[Student] | None = Relationship(back_populates="course", link_model=Enrollment)
+    assignments: List["Assignment"] | None = Relationship(back_populates="course")
+    classes: List["Class"] | None  = Relationship(back_populates="course")
+    minors: List["Minor"] | None = Relationship(back_populates="course")
+    majors: List["Major"] | None = Relationship(back_populates="courses", link_model=CourseMajorLink)
 
 class Minor(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
@@ -137,11 +140,11 @@ class Minor(SQLModel, table=True):
     ru_name: str
     fgos_name: str
 
-    course_id: Optional[int] = Field(default=None, foreign_key="course.id")
-    courses: List["Course"] | None = Relationship(default=None, back_populates="minors")
+    course_id: int | None = Field(default=None, foreign_key="course.id")
+    courses: List[Course] | None = Relationship(back_populates="minors")
 
 
-class Assignment(SQLModel, table=True):
+class AssignmentBase(SQLModel):
     id: int | None = Field(default=None, primary_key=True)
     pass_type: str
     weight: float
@@ -151,9 +154,14 @@ class Assignment(SQLModel, table=True):
     course: Course = Relationship(back_populates="assignments")
 
 
-class MakeUp(Assignment, table=True):
-    is_pass: bool 
+class Assignment(AssignmentBase, table=True):
+    pass
+
+
+class MakeUp(AssignmentBase, table=True):
+    is_pass: bool
     weight: float | None = Field(default=None)
+
 
 class Class(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
@@ -163,8 +171,8 @@ class Class(SQLModel, table=True):
 
     course_id: int = Field(default=None, foreign_key="course.id")
     course: Course = Relationship(back_populates="classes")
-    enrollments: List[Enrollment] | None = Relationship(default=None, back_populates="classes", link_model=Attendance)
-    
+    enrollments: List[Enrollment] | None = Relationship(back_populates="classes", link_model=Attendance)
+
 
 class Major(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
@@ -172,8 +180,9 @@ class Major(SQLModel, table=True):
     ru_name: str
     fgos_name: str
 
-    students: List[Student] | None = Relationship(default=None, back_populates="major")
-    courses: List[Course] | None = Relationship(default=None, back_populates="major", link_model=CourseMajorLink)
+    students: List[Student] | None = Relationship(back_populates="major")
+    courses: List[Course] | None = Relationship(back_populates="major", link_model=CourseMajorLink)
 
-class FinalGrade(SQLModel, table=True):
-    value: float
+# class FinalGrade(SQLModel, table=True):
+#     id: int | None = Field(default=None, primary_key=True)
+#     value: float
