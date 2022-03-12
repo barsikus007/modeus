@@ -12,3 +12,10 @@ parserOptions:
 plugins:
   - react
 rules: {}
+settings: 
+  import/resolver:
+    node:
+      moduleDirectory:
+        - node_modules
+        - src
+
