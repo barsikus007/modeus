@@ -1,6 +1,5 @@
 import asyncio
 from logging.config import fileConfig
-from os import getenv
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
@@ -9,6 +8,7 @@ from sqlmodel import SQLModel
 from alembic import context
 
 from src.models import *
+from src.settings import settings
 
 
 # this is the Alembic Config object, which provides
@@ -31,10 +31,6 @@ target_metadata = SQLModel.metadata
 # ... etc.
 
 
-def get_url():
-    return getenv("DATABASE_URL")
-
-
 def run_migrations_offline():
     """Run migrations in 'offline' mode.
 
@@ -47,7 +43,7 @@ def run_migrations_offline():
     script output.
 
     """
-    url=get_url()
+    url=settings.DATABASE_URL
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -77,7 +73,7 @@ async def run_migrations_online():
         engine_from_config(
             {
                 **config.get_section(config.config_ini_section),
-                **{"sqlalchemy.url": get_url()}
+                **{"sqlalchemy.url": settings.DATABASE_URL}
             },
             prefix="sqlalchemy.",
             poolclass=pool.NullPool,
