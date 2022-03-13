@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 
-import ProfessorHome from 'components/ProfessorHome';
+import ProfessorHome from './components/ProfessorHome';
 
 function App() {
   return (
