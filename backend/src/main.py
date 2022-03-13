@@ -6,6 +6,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from db import get_session
 from models import Student, StudentCreate, StudentRead
+from models import Major, MajorCreate, MajorRead
 
 
 app = FastAPI(
@@ -53,12 +54,28 @@ async def get_students(
 
 @app.post('/api/v1/student', response_model=StudentRead)
 async def add_student(student: StudentCreate, session: AsyncSession = Depends(get_session)) -> StudentRead:
-    student = Student(**student.dict())
+    student = Student.from_orm(student)
     session.add(student)
     await session.commit()
     # Seems, that refreshing is not necessary
     # await session.refresh(student)
     return student
+
+
+@app.post('/api/v1/major', response_model=MajorRead)
+async def add_major(major: MajorCreate, session: AsyncSession = Depends(get_session)) -> MajorRead:
+    major = Major.from_orm(major)
+    session.add(major)
+    await session.commit()
+    return major
+
+
+# @app.post('/api/v1/course', response_model=Course)
+# async def add_course(course: Course, session: AsyncSession = Depends(get_session)) -> Course:
+#     course = Course(**course.dict())
+#     session.add(course)
+#     await course.commit()
+#     return course
 
 
 if __name__ == '__main__':

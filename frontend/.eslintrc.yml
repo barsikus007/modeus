@@ -11,7 +11,8 @@ parserOptions:
   sourceType: module
 plugins:
   - react
-rules: {}
+rules: 
+  jsx-a11y/label-has-associated-control: off  # Turned off due to modern label syntax
 settings: 
   import/resolver:
     node:
