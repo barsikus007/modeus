@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const Body = styled.body`
+const Body = styled.div`
     background-color: #fcecea;
 `;
 
