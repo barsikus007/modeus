@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import Navbar from './jsx_example';
-import ProfessorsList from './professorsList';
-import ProfessorProfile from './professorProfile';
+import Navbar from './components/Navbar';
+import ProfessorSidebar from './components/professorSidebar.jsx';
+import ProfessorProfile from './components/professorProfile.jsx';
 
 const Row = styled.div`
   display:flex;

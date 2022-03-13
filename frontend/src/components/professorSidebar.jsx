@@ -49,7 +49,6 @@ const H6 = styled.h6`
 `;
 
 const AddButton = styled.h5`
-    
     color:#969DA3;
     margin-top:0;
     font-size:14px;
@@ -68,7 +67,7 @@ const Li = styled.li`
     font-size:14px;
 `;
 
-function ProfessorsList() {
+function ProfessorSidebar() {
   return (
     <ProfBar>
       <SearchBar type="search" placeholder="Search" />
@@ -91,4 +90,4 @@ function ProfessorsList() {
   );
 }
 
-export default ProfessorsList;
+export default ProfessorSidebar;

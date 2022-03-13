@@ -62,7 +62,7 @@ function ProfessorProfile() {
         <Type>visiting</Type>
         <ChangeStatusBtn>Change status</ChangeStatusBtn>
 
-      </MainRow>
+      </MainRow>-
       <Details>status: | n.surname.utmn.ru</Details>
 
     </Profile>
