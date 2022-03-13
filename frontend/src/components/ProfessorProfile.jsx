@@ -48,11 +48,11 @@ const ChangeStatusBtn = styled.button`
     margin-left: 500px;
 `;
 
-const Courses = styled.h5`
-`;
+// const Courses = styled.h5`
+// `;
 
-const CoursesTable = styled.div`
-`;
+// const CoursesTable = styled.div`
+// `;
 
 function ProfessorProfile() {
   return (
@@ -62,7 +62,8 @@ function ProfessorProfile() {
         <Type>visiting</Type>
         <ChangeStatusBtn>Change status</ChangeStatusBtn>
 
-      </MainRow>-
+      </MainRow>
+      -
       <Details>status: | n.surname.utmn.ru</Details>
 
     </Profile>

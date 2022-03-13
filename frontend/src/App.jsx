@@ -1,10 +1,14 @@
 import React from 'react';
-import styled from 'styled-components';
+import { Route, Routes } from 'react-router-dom';
 
-import professorHome from './components/professorHome.jsx';
+import ProfessorHome from './components/ProfessorHome';
 
 function App() {
-  return (<professorHome/>);
+  return (
+    <Routes>
+      <Route path="/" element={<ProfessorHome />} />
+    </Routes>
+  );
 }
 
 export default App;
