@@ -20,8 +20,15 @@ app = FastAPI(
 )
 
 
-@app.get('/api/v1/modeus', response_model=dict[str, str])
-async def example() -> dict[str, str]:
+@app.get('/api/v1/sus', response_model=dict[str, str])
+async def sas(session: AsyncSession = Depends(get_session)) -> dict[str, str]:
+    major = await session.exec(select(Major).where(Major.eng_name == 'IT'))
+    if major.first():
+        return {'sus': 'sas'}
+    major = Major(eng_name='IT', ru_name='ОЙТИ', fgos_name='Информационные технологии')
+    session.add(major)
+    await session.commit()
+
     return {'sas': 'sus'}
 
 

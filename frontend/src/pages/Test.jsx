@@ -11,6 +11,10 @@ function Test() {
     isLoading, isError, data, error, refetch,
   } = useQuery('students', getStudents);
 
+  const { data: dataSus, refetch: refetchs } = useQuery('sus', () => fetch('/api/v1/sus').then((res) => res.json()), {
+    enabled: false,
+  });
+
   const { mutate } = useMutation((event) => {
     event.preventDefault();
     const body = Object.fromEntries(new FormData(event.target).entries());
@@ -30,6 +34,8 @@ function Test() {
 
   return (
     <>
+      <button type="button" onClick={refetchs}>{JSON.stringify(dataSus) || 'SAS'}</button>
+      <br />
       Test page for testing purpuses
       <br />
       (Open network tab (F12 in Edge/Chrome))
