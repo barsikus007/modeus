@@ -13,7 +13,10 @@ plugins:
   - react
 rules: 
   jsx-a11y/label-has-associated-control: off  # Turned off due to modern label syntax
-  arrow-parens: as-needed  # Turned off due to modern label syntax
+  arrow-parens:
+    - error
+    - 
+      as-needed
 settings: 
   import/resolver:
     node:
