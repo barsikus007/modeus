@@ -10,11 +10,11 @@ function Test() {
     isLoading, isError, data, error, refetch,
   } = useQuery('students', getStudents);
 
-  const { data: dataSus, refetch: refetchs } = useQuery('sus', () => fetch('/api/v1/sus').then((res) => res.json()), {
+  const { data: dataSus, refetch: refetchs } = useQuery('sus', () => fetch('/api/v1/sus').then(res => res.json()), {
     enabled: false,
   });
 
-  const { mutate } = useMutation((event) => {
+  const { mutate } = useMutation(event => {
     event.preventDefault();
     const body = Object.fromEntries(new FormData(event.target).entries());
 
@@ -67,7 +67,7 @@ function Test() {
       <br />
       {isError ?? 'ERROR'}
       <br />
-      {(data || []).map((student) => (
+      {(data || []).map(student => (
         <div key={student.id}>
           {student.name}
           :
