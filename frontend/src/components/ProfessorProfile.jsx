@@ -12,7 +12,9 @@ const Profile = styled.div`
 const MainRow = styled.div`
     display:flex;
     display-direction:row;
-    justify-content:space-around;
+    align-items:flex-start;
+    justify-content:flex-start;
+    width:914px;
 `;
 
 const Name = styled.h3`
@@ -33,7 +35,6 @@ const Details = styled.h6`
     position: absolute;
     margin-left:10px;
     margin-top:0;
-
     font-size:14px;
     font-style:normal;
     font-weight:400;
@@ -45,7 +46,8 @@ const ChangeStatusBtn = styled.button`
     text-color:#969DA3;
     height:50px;
     weight:116px;
-    margin-left: 500px;
+    margin-left:480px;
+    margin-top:10px;
 `;
 
 // const Courses = styled.h5`
@@ -59,13 +61,11 @@ function ProfessorProfile() {
     <Profile>
       <MainRow>
         <Name>Name Surname</Name>
-        <Type>visiting</Type>
-        <ChangeStatusBtn>Change status</ChangeStatusBtn>
-
+        <Type> visiting</Type>
+        <ChangeStatusBtn>change status</ChangeStatusBtn>
       </MainRow>
-      -
       <Details>status: | n.surname.utmn.ru</Details>
-
+      <Details>status: | n.surname.utmn.ru</Details>
     </Profile>
   );
 }
