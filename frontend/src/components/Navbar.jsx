@@ -1,11 +1,8 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 
-const Body = styled.div`
-    background-color: #fcecea;
-`;
-
-const Navrow = styled.div`
+const Navrow = styled.nav`
     display: flex;
     flex-direction: row;
 
@@ -19,12 +16,23 @@ const Square = styled.div`
     background-color:black;
 `;
 
+const StyledNavLink = styled(NavLink)`
+  color: black;
+  text-decoration: none;
+  &:hover {
+    color: green;
+  }
+  &.active {
+    color: red;
+    &:hover {
+      color: red;
+    }
+  }
+`;
+
 const H5 = styled.h5`
     font-size: 18px;
     font-weight: bold;
-    &:hover {
-        color:green;
-    }
 `;
 
 const Tabs = styled.div`
@@ -48,23 +56,21 @@ const NameBox = styled.div`
 
 function Navbar() {
   return (
-    <Body>
-      <Navrow>
-        <Tabs>
-          <Square />
-          <Square />
-          <Square />
-          <H5>Main</H5>
-          <H5>Courses</H5>
-          <H5>Students</H5>
-          <H5>Professors</H5>
-        </Tabs>
-        <NameBox>
-          <H5>Name Surname</H5>
-          <H5>log out</H5>
-        </NameBox>
-      </Navrow>
-    </Body>
+    <Navrow>
+      <Tabs>
+        <Square />
+        <Square />
+        <Square />
+        <StyledNavLink to="/"><H5>Main</H5></StyledNavLink>
+        <StyledNavLink to="/course"><H5>Courses</H5></StyledNavLink>
+        <StyledNavLink to="/student"><H5>Students</H5></StyledNavLink>
+        <StyledNavLink to="/professor"><H5>Professors</H5></StyledNavLink>
+      </Tabs>
+      <NameBox>
+        <H5>Name Surname</H5>
+        <H5>log out</H5>
+      </NameBox>
+    </Navrow>
   );
 }
 

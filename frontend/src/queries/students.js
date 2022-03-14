@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 const apiPath = '/api/v1';
 
 // eslint-disable-next-line import/prefer-default-export
