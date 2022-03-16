@@ -4,11 +4,10 @@ from fastapi.responses import ORJSONResponse
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from db import get_session
-from models import CourseReadWithLinks, Student, StudentCreate, StudentRead
+from db import get_session, get
+from models import Student, StudentCreate, StudentRead, StudentReadWithLinks
 from models import Major, MajorCreate, MajorRead, MajorReadWithLinks
-from models import Course, CourseCreate, CourseRead
-from models import CourseMajorLink
+from models import Course, CourseCreate, CourseRead, CourseReadWithLinks
 
 
 app = FastAPI(
@@ -23,7 +22,7 @@ app = FastAPI(
 
 
 @app.get('/api/v1/sus', response_model=dict[str, str])
-async def sas(session: AsyncSession = Depends(get_session)) -> dict[str, str]:
+async def sas(session: AsyncSession = Depends(get_session)):
     major = await session.exec(select(Major).where(Major.eng_name == 'IT'))
     if major.first():
         return {'sus': 'sas'}
@@ -35,7 +34,7 @@ async def sas(session: AsyncSession = Depends(get_session)) -> dict[str, str]:
 
 
 @app.patch('/api/v1/student/{student_id}', response_model=StudentRead)
-async def year_student(student_id: int, year: int, session: AsyncSession = Depends(get_session)) -> StudentRead:
+async def year_student(student_id: int, year: int, session: AsyncSession = Depends(get_session)):
     student = await session.get(Student, student_id)
     if not student:
         raise HTTPException(status_code=404, detail='Student not found')
@@ -45,9 +44,9 @@ async def year_student(student_id: int, year: int, session: AsyncSession = Depen
     return student
 
 
-@app.get('/api/v1/student/{student_id}', response_model=StudentRead)
-async def get_student(student_id: int, session: AsyncSession = Depends(get_session)) -> StudentRead:
-    student = await session.get(Student, student_id)
+@app.get('/api/v1/student/{student_id}', response_model=StudentReadWithLinks)
+async def get_student(student_id: int, session: AsyncSession = Depends(get_session)):
+    student = await get(session, Student, student_id)
     if not student:
         raise HTTPException(status_code=404, detail='Student not found')
     return student
@@ -62,7 +61,7 @@ async def get_students(
 
 
 @app.post('/api/v1/student', response_model=StudentRead)
-async def add_student(student: StudentCreate, session: AsyncSession = Depends(get_session)) -> StudentRead:
+async def add_student(student: StudentCreate, session: AsyncSession = Depends(get_session)):
     student = Student.from_orm(student)
     session.add(student)
     await session.commit()
@@ -72,7 +71,7 @@ async def add_student(student: StudentCreate, session: AsyncSession = Depends(ge
 
 
 @app.post('/api/v1/major', response_model=MajorRead)
-async def add_major(major: MajorCreate, session: AsyncSession = Depends(get_session)) -> MajorRead:
+async def add_major(major: MajorCreate, session: AsyncSession = Depends(get_session)):
     major = Major.from_orm(major)
     session.add(major)
     await session.commit()
@@ -80,7 +79,7 @@ async def add_major(major: MajorCreate, session: AsyncSession = Depends(get_sess
 
 
 @app.get('/api/v1/course/{course_id}', response_model=CourseReadWithLinks)
-async def get_course(course_id: int, session: AsyncSession = Depends(get_session)) -> CourseReadWithLinks:
+async def get_course(course_id: int, session: AsyncSession = Depends(get_session)):
     course = await session.get(Course, course_id)
     if not course:
         raise HTTPException(status_code=404, detail='Course not found')
@@ -88,42 +87,61 @@ async def get_course(course_id: int, session: AsyncSession = Depends(get_session
 
 
 @app.post('/api/v1/course', response_model=CourseRead)
-async def add_course(course: CourseCreate, session: AsyncSession = Depends(get_session)) -> CourseRead:
+async def add_course(course: CourseCreate, session: AsyncSession = Depends(get_session)):
     course = Course.from_orm(course)
     session.add(course)
     await session.commit()
     return course
 
 
-# @app.post('/api/v1/major/{major_id}/add/{course_id}', response_model=MajorReadWithLinks)
-@app.post('/api/v1/major/{major_id}/add/{course_id}', response_model=CourseMajorLink)
+@app.post('/api/v1/major/{major_id}/add/{course_id}', response_model=MajorReadWithLinks)  # CourseMajorLink)
 async def link_major_to_course(
         major_id: int, course_id: int, session: AsyncSession = Depends(get_session)
-    # ) -> MajorReadWithLinks:
-    ) -> CourseMajorLink:
-    major = await session.get(Major, major_id)
+    ):
+    major = await get(session, Major, major_id)
+    # major = await session.get(Major, major_id)
     course = await session.get(Course, course_id)
     if not major:
         raise HTTPException(status_code=404, detail='Major not found')
     if not course:
         raise HTTPException(status_code=404, detail='Course not found')
-    # major.courses.append(course)
-    link = (await session.exec(
-        select(CourseMajorLink)
-            .where(
-                CourseMajorLink.major_id == major_id,
-                CourseMajorLink.course_id == course_id
-            )
-    )).first()
-    if link:
+    if course_id in [m.id for m in major.courses]:
         raise HTTPException(status_code=409, detail='Link already exists')
-        return link
-    course_major_link = CourseMajorLink(major_id=major_id, course_id=course_id)
-    session.add(course_major_link)
+    major.courses.append(course)
+    # link = (await session.exec(
+    #     select(CourseMajorLink)
+    #         .where(
+    #             CourseMajorLink.major_id == major_id,
+    #             CourseMajorLink.course_id == course_id
+    #         )
+    # )).first()
+    # if link:
+    #     raise HTTPException(status_code=409, detail='Link already exists')
+    #     return link
+    # course_major_link = CourseMajorLink(major_id=major_id, course_id=course_id)
+    # session.add(course_major_link)
     session.add(major)
     await session.commit()
-    # return major
-    return course_major_link
+    return major
+    # return course_major_link
+
+
+@app.post('/api/v1/student/{student_id}/enroll/{course_id}', response_model=StudentReadWithLinks)
+async def enroll_student_to_course(
+        student_id: int, course_id: int, session: AsyncSession = Depends(get_session)
+    ):
+    student = await get(session, Student, student_id)
+    course = await session.get(Course, course_id)
+    if not student:
+        raise HTTPException(status_code=404, detail='Student not found')
+    if not course:
+        raise HTTPException(status_code=404, detail='Course not found')
+    if course_id in [m.id for m in student.courses]:
+        raise HTTPException(status_code=409, detail='Student already enrolled')
+    student.courses.append(course)
+    session.add(student)
+    await session.commit()
+    return student
 
 
 if __name__ == '__main__':

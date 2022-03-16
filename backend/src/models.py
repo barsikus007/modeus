@@ -7,7 +7,8 @@ from sqlmodel import SQLModel, Field, Relationship
 __all__ = [
     'Student', 'Major',
     'Course', 'CourseMajorLink',
-    # 'Grade', 'FacultyMember', 'Minor', 'Attendance', 'Enrollment', 
+    'Enrollment',
+    # 'Grade', 'FacultyMember', 'Minor', 'Attendance',
     # 'Assignment', 'MakeUp', 'Class',
 ]
 
@@ -58,14 +59,14 @@ class CourseMajorLink(SQLModel, table=True):
 #     status: str
 
 
-# class Enrollment(SQLModel, table=True):
-#     id: int | None = Field(default=None, primary_key=True, nullable=False)
-#     course_id: int | None = Field(
-#         default=None, foreign_key="course.id"
-#     )
-#     student_id: int | None = Field(
-#         default=None, foreign_key="student.id"
-#     )
+class Enrollment(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True, nullable=False)
+    course_id: int | None = Field(
+        default=None, foreign_key="course.id"
+    )
+    student_id: int | None = Field(
+        default=None, foreign_key="student.id"
+    )
 
     # classes: List["Class"] = Relationship(back_populates="enrollments", link_model=Attendance)
 
@@ -90,7 +91,7 @@ class StudentBase(SQLModel):
 class Student(StudentBase, table=True):
     id: int | None = Field(default=None, primary_key=True, nullable=False)
 
-    # courses: List["Course"] = Relationship(back_populates="student", link_model=Enrollment)
+    courses: List["Course"] = Relationship(back_populates="students", link_model=Enrollment)
     major: Optional["Major"] = Relationship(back_populates="students")
 
 
@@ -100,6 +101,11 @@ class StudentCreate(StudentBase):
 
 class StudentRead(StudentBase):
     id: int
+
+
+class StudentReadWithLinks(StudentRead):
+    courses: List["CourseRead"] = []
+    major: Optional["MajorRead"] = None
 
 
 # class FacultyMember(SQLModel):
@@ -134,7 +140,7 @@ class CourseBase(SQLModel):
 class Course(CourseBase, table=True):
     id: int | None = Field(default=None, primary_key=True, nullable=False)
 
-    # students: List[Student] = Relationship(back_populates="courses", link_model=Enrollment)
+    students: List[Student] = Relationship(back_populates="courses", link_model=Enrollment)
     # assignments: List["Assignment"] = Relationship(back_populates="course")
     # classes: List["Class"]  = Relationship(back_populates="course")
     # minors: List["Minor"] = Relationship(back_populates="course")
@@ -150,6 +156,7 @@ class CourseRead(CourseBase):
 
 
 class CourseReadWithLinks(CourseRead):
+    students: List[StudentRead] = []
     majors: List["MajorRead"] = []
 
 
@@ -223,4 +230,6 @@ class MajorReadWithLinks(MajorRead):
 #     id: int | None = Field(default=None, primary_key=True, nullable=False)
 #     value: float
 
+
 CourseReadWithLinks.update_forward_refs()
+StudentReadWithLinks.update_forward_refs()
