@@ -143,8 +143,8 @@ class Course(CourseBase, table=True):
     students: List[Student] = Relationship(back_populates="courses", link_model=Enrollment)
     # assignments: List["Assignment"] = Relationship(back_populates="course")
     # classes: List["Class"]  = Relationship(back_populates="course")
-    # minors: List["Minor"] = Relationship(back_populates="course")
     majors: List["Major"] = Relationship(back_populates="courses", link_model=CourseMajorLink)
+    # minors: List["Minor"] = Relationship(back_populates="course")  # ??? , link_model=CourseMinorLink)
 
 
 class CourseCreate(CourseBase):
@@ -160,14 +160,17 @@ class CourseReadWithLinks(CourseRead):
     majors: List["MajorRead"] = []
 
 
-# class Minor(SQLModel, table=True):
-#     id: int | None = Field(default=None, primary_key=True, nullable=False)
+# class MinorBase(SQLModel):
 #     eng_name: str
 #     ru_name: str
 #     fgos_name: str
 
+
+# class Minor(MinorBase, table=True):
+#     id: int | None = Field(default=None, primary_key=True, nullable=False)
+
 #     course_id: int | None = Field(default=None, foreign_key="course.id")
-#     courses: List[Course] | None = Relationship(back_populates="minors")
+#     courses: List[Course] = Relationship(back_populates="minors")  # ??? , link_model=CourseMinorLink)
 
 
 # class AssignmentBase(SQLModel):
@@ -231,5 +234,6 @@ class MajorReadWithLinks(MajorRead):
 #     value: float
 
 
+# TODO: Why?
 CourseReadWithLinks.update_forward_refs()
 StudentReadWithLinks.update_forward_refs()
