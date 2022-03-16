@@ -16,10 +16,10 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <Routes>
         <Route path="/" element={<Common />}>
+          <Route index element={<Index />} />
           <Route path="professor" element={<ProfessorHome />} />
           <Route path="test" element={<Test />} />
           <Route path="*" element={<NotFound />} />
-          <Route path="" element={<Index />} />
         </Route>
       </Routes>
       <ReactQueryDevtools position="bottom-right" />
