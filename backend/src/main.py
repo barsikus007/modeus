@@ -5,8 +5,10 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from db import get_session
-from models import Student, StudentCreate, StudentRead
-from models import Major, MajorCreate, MajorRead
+from models import CourseReadWithLinks, Student, StudentCreate, StudentRead
+from models import Major, MajorCreate, MajorRead, MajorReadWithLinks
+from models import Course, CourseCreate, CourseRead
+from models import CourseMajorLink
 
 
 app = FastAPI(
@@ -77,12 +79,51 @@ async def add_major(major: MajorCreate, session: AsyncSession = Depends(get_sess
     return major
 
 
-# @app.post('/api/v1/course', response_model=Course)
-# async def add_course(course: Course, session: AsyncSession = Depends(get_session)) -> Course:
-#     course = Course(**course.dict())
-#     session.add(course)
-#     await course.commit()
-#     return course
+@app.get('/api/v1/course/{course_id}', response_model=CourseReadWithLinks)
+async def get_course(course_id: int, session: AsyncSession = Depends(get_session)) -> CourseReadWithLinks:
+    course = await session.get(Course, course_id)
+    if not course:
+        raise HTTPException(status_code=404, detail='Course not found')
+    return course
+
+
+@app.post('/api/v1/course', response_model=CourseRead)
+async def add_course(course: CourseCreate, session: AsyncSession = Depends(get_session)) -> CourseRead:
+    course = Course.from_orm(course)
+    session.add(course)
+    await session.commit()
+    return course
+
+
+# @app.post('/api/v1/major/{major_id}/add/{course_id}', response_model=MajorReadWithLinks)
+@app.post('/api/v1/major/{major_id}/add/{course_id}', response_model=CourseMajorLink)
+async def link_major_to_course(
+        major_id: int, course_id: int, session: AsyncSession = Depends(get_session)
+    # ) -> MajorReadWithLinks:
+    ) -> CourseMajorLink:
+    major = await session.get(Major, major_id)
+    course = await session.get(Course, course_id)
+    if not major:
+        raise HTTPException(status_code=404, detail='Major not found')
+    if not course:
+        raise HTTPException(status_code=404, detail='Course not found')
+    # major.courses.append(course)
+    link = (await session.exec(
+        select(CourseMajorLink)
+            .where(
+                CourseMajorLink.major_id == major_id,
+                CourseMajorLink.course_id == course_id
+            )
+    )).first()
+    if link:
+        raise HTTPException(status_code=409, detail='Link already exists')
+        return link
+    course_major_link = CourseMajorLink(major_id=major_id, course_id=course_id)
+    session.add(course_major_link)
+    session.add(major)
+    await session.commit()
+    # return major
+    return course_major_link
 
 
 if __name__ == '__main__':
