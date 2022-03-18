@@ -2,8 +2,9 @@ env:
   browser: true
   es2021: true
 extends:
-  - plugin:react/recommended
   - airbnb
+  - plugin:react/recommended
+  - plugin:react/jsx-runtime
 parserOptions:
   ecmaFeatures:
     jsx: true
@@ -12,11 +13,23 @@ parserOptions:
 plugins:
   - react
 rules: 
+  react/jsx-uses-react: off
+  react/react-in-jsx-scope: off
+  react/jsx-props-no-spreading: off
   jsx-a11y/label-has-associated-control: off  # Turned off due to modern label syntax
   arrow-parens:
     - error
     - 
       as-needed
+  max-len:
+    - warn
+    -
+      code: 120
+      ignoreComments: true
+      ignoreTrailingComments: true
+      ignoreStrings: true
+      ignoreTemplateLiterals: true
+      ignoreRegExpLiterals: true
 settings: 
   import/resolver:
     node:

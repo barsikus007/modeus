@@ -1,4 +1,3 @@
-import React from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 
 import { getStudents } from 'queries/students';
